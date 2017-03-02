@@ -2,8 +2,8 @@
 import socket, threading, time
 import json
 
-host = "localhost"
-upload_port = 8081
+host = "119.29.141.199"
+# upload_port = 8081
 access_port = 8082
 # status_data = None
 BUFFER_SIZE = 1024
