@@ -2,7 +2,7 @@
 import socket, threading, time
 import json
 
-host = "119.29.141.199"
+host = ""
 # upload_port = 8081
 access_port = 8082
 # status_data = None
