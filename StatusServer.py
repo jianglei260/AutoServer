@@ -49,7 +49,7 @@ class AutoServer:
             # upload_client.sendall(cmd)
             print("redrect cmd:" + str(cmd_value))
             if self.terminal_client:
-                self.terminal_client.sendall(cmd)
+                self.terminal_client.sendall(json.dumps(cmd))
         elif cmd_type == "role":
             if cmd_value == "terminal":
                 self.terminal_client = client
