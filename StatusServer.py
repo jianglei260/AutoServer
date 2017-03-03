@@ -34,22 +34,24 @@ class AutoServer:
             thread.start()
 
     def handle_client(self, client, address):
+        client.send("welcome")
         while (True):
             cmd = client.recv(BUFFER_SIZE)
             if not cmd:
                 break
-
-            json_cmd = json.loads(cmd)
-            self.handle_cmd(client, json_cmd)
+            try:
+                json_cmd = json.loads(cmd)
+                self.handle_cmd(client, json_cmd)
+            except:
+                print("error json" + cmd)
 
     def handle_cmd(self, client, cmd):
         cmd_type = cmd['type']
         cmd_value = cmd['value']
         if cmd_type == "cmd":
-            # upload_client.sendall(cmd)
             if self.terminal_client:
                 print("redrect cmd:" + str(cmd_value))
-                self.terminal_client.sendall(json.dumps(cmd))
+                self.terminal_client.send(json.dumps(cmd))
         elif cmd_type == "role":
             if cmd_value == "terminal":
                 self.terminal_client = client
