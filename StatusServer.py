@@ -38,11 +38,9 @@ class AutoServer:
             cmd = client.recv(BUFFER_SIZE)
             if not cmd:
                 break
-            try:
-                json_cmd = json.loads(cmd)
-                self.handle_cmd(client, json_cmd)
-            except:
-                print("load json error")
+
+            json_cmd = json.loads(cmd)
+            self.handle_cmd(client, json_cmd)
 
     def handle_cmd(self, client, cmd):
         cmd_type = cmd['type']
