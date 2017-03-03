@@ -24,6 +24,8 @@ class AutoServer:
         self.access_server.bind((host, access_port))
         self.access_server.listen(10)
         self.terminal_client = None
+        self.status = None
+        self.control_client = []
 
     def start_server(self):
         while (True):
@@ -36,22 +38,37 @@ class AutoServer:
             cmd = client.recv(BUFFER_SIZE)
             if not cmd:
                 break
-            self.handle_cmd(client, json.loads(cmd))
+            try:
+                json_cmd = json.loads(cmd)
+                self.handle_cmd(client, json_cmd)
+            except:
+                print("load json error")
 
     def handle_cmd(self, client, cmd):
         cmd_type = cmd['type']
         cmd_value = cmd['value']
         if cmd_type == "cmd":
             # upload_client.sendall(cmd)
-            print("redrect cmd:" + cmd_value)
+            print("redrect cmd:" + str(cmd_value))
             if self.terminal_client:
                 self.terminal_client.sendall(cmd)
         elif cmd_type == "role":
             if cmd_value == "terminal":
                 self.terminal_client = client
                 print("connected terminal")
+            else:
+                self.control_client.append(client)
+        elif cmd_type == "status":
+            print(cmd_value)
+            self.status = cmd_value
+            self.redirect_status(self.status)
+
+    def redirect_status(self, status):
+        for client in self.control_client:
+            if client:
+                client.sendall(status)
 
 
 if __name__ == "__main__":
-    auto_server=AutoServer()
+    auto_server = AutoServer()
     auto_server.start_server()
