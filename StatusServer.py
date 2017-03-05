@@ -34,7 +34,6 @@ class AutoServer:
             thread.start()
 
     def handle_client(self, client, address):
-        client.send("welcome")
         while (True):
             cmd = client.recv(BUFFER_SIZE)
             if not cmd:
@@ -42,7 +41,7 @@ class AutoServer:
             try:
                 cmds = cmd.split()
                 for command in cmds:
-                    json_cmd = json.loads(cmd)
+                    json_cmd = json.loads(command)
                     self.handle_cmd(client, json_cmd)
             except:
                 print("error json" + cmd)
