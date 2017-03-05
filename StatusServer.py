@@ -40,8 +40,10 @@ class AutoServer:
             if not cmd:
                 break
             try:
-                json_cmd = json.loads(cmd)
-                self.handle_cmd(client, json_cmd)
+                cmds = cmd.split()
+                for command in cmds:
+                    json_cmd = json.loads(cmd)
+                    self.handle_cmd(client, json_cmd)
             except:
                 print("error json" + cmd)
 
