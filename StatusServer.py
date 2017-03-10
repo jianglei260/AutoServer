@@ -1,13 +1,7 @@
 # coding=utf-8
 import socket, threading, time
 import json
-import scipy.misc
 import sys
-
-sys.path.append('/usr/local/lib/python2.7/site-packages')
-import cv2
-from PIL import Image
-import struct
 
 host = ""
 # upload_port = 8081
