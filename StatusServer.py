@@ -128,14 +128,13 @@ class Monitor:
                 except:
                     pass
 
-    def show_image(self, image):
-        full_image = scipy.misc.fromimage(Image.frombuffer("RGB", (200, 200), image))
-        cv2.imshow("frame", cv2.cvtColor(full_image, cv2.COLOR_RGB2BGR))
-
     def connect_client(self, client_host):
         terminal_address = (client_host[0], client_monitor_port)
         if self.client:
-            self.client.close()
+            try:
+                self.client.close()
+            except:
+                pass
         self.client = socket.create_connection(terminal_address, timeout=60000);
 
 
