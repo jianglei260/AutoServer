@@ -61,15 +61,9 @@ class AutoServer:
         elif cmd_type == "role":
             if cmd_value == "terminal":
                 self.terminal_client = client
-                if self.monitor:
-                    thread = threading.Thread(target=self.monitor.connect_terminal, args=(address,))
-                    thread.start()
                 print("connected terminal")
             else:
                 self.control_client.append(client)
-                if self.monitor:
-                    thread = threading.Thread(target=self.monitor.connect_client, args=(address,))
-                    thread.start()
         elif cmd_type == "status":
             self.status = cmd_value
             self.redirect_status(json.dumps(cmd))
@@ -96,8 +90,39 @@ class Monitor:
         self.client = None
         self.terminal = None
         self.buffer = [];
+        self.monitor_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.monitor_server.bind((host, monitor_port))
+        self.monitor_server.listen(5)
+        self.monitor_client_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.monitor_client_server.bind((host, client_monitor_port))
+        self.monitor_client_server.listen(5)
+        thread = threading.Thread(target=self.start_monitor_server, args=())
+        thread.start()
+        thread = threading.Thread(target=self.start_client_server, args=())
+        thread.start()
+    def start_monitor_server(self):
+        while(True):
+            access_client, client_address = self.monitor_server.accept()
+            self.terminal=access_client
+            self.redrect_data()
+
+    def start_client_server(self):
+        while(True):
+            access_client, client_address = self.monitor_client_server.accept()
+            self.client=access_client
+    def redrect_data(self):
+        while (True):
+            self.buffer = self.terminal.recv(20000)
+            if not self.buffer:
+                break
+            if self.client and self.buffer:
+                try:
+                    self.client.sendall(self.buffer)
+                except:
+                    pass
 
     def connect_terminal(self, terminal_host):
+        self.terminal_host=terminal_host
         terminal_address = (terminal_host[0], monitor_port)
         if self.terminal:
             self.terminal.close()
@@ -107,21 +132,7 @@ class Monitor:
             self.buffer = self.terminal.recv(20000)
             if not self.buffer:
                 break
-            # received_buffer=""
-            # received_buffer=received_buffer+self.buffer
-            # data_len=struct.unpack("!5s",self.buffer)[0]
-            # int_data_len=int(data_len)
-            # print("should receive data" + str(int_data_len))
-            # self.buffer=self.terminal.recv(int_data_len)
-            # print("data type" + str(type(self.buffer)))
-            # received=len(self.buffer);
-            # received_buffer=received_buffer+self.buffer
-            # while(received<int_data_len):
-            #     self.buffer=self.terminal.recv(int_data_len-received)
-            #     received=received+len(self.buffer);
-            #     received_buffer=received_buffer+self.buffer
-            #     print("received data" + str(received))
-            # print("receive buffer data" + str(len(received_buffer)))
+
             if self.client and self.buffer:
                 try:
                     self.client.sendall(self.buffer)
@@ -143,3 +154,18 @@ if __name__ == "__main__":
     monitor = Monitor()
     auto_server.set_monitor(monitor)
     auto_server.start_server()
+    # received_buffer=""
+    # received_buffer=received_buffer+self.buffer
+    # data_len=struct.unpack("!5s",self.buffer)[0]
+    # int_data_len=int(data_len)
+    # print("should receive data" + str(int_data_len))
+    # self.buffer=self.terminal.recv(int_data_len)
+    # print("data type" + str(type(self.buffer)))
+    # received=len(self.buffer);
+    # received_buffer=received_buffer+self.buffer
+    # while(received<int_data_len):
+    #     self.buffer=self.terminal.recv(int_data_len-received)
+    #     received=received+len(self.buffer);
+    #     received_buffer=received_buffer+self.buffer
+    #     print("received data" + str(received))
+    # print("receive buffer data" + str(len(received_buffer)))
